@@ -20,7 +20,7 @@ const Home = () => {
       ]);
 
       setFeaturedArticles(articlesRes.data.data.articles || []);
-      setCategories(categoriesRes.data.data || []);
+      setCategories(Array.isArray(categoriesRes.data.data) ? categoriesRes.data.data : []);
     } catch (error) {
       console.error('Error fetching home data:', error);
     } finally {

@@ -36,7 +36,7 @@ const Dashboard = () => {
 
         // Get recent articles
         const articles = articlesRes.data.data || articlesRes.data;
-        setRecentArticles(articles.slice(0, 5));
+        setRecentArticles(articles.articles ? articles.articles.slice(0, 5) : []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         // Set default values if API calls fail

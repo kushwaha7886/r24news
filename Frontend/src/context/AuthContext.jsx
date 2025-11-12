@@ -31,16 +31,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('AuthContext: Sending login request...');
       const response = await api.post('/users/login', { email, password });
+      console.log('AuthContext: Login response received:', response.data);
+      
       const { user, accessToken, refreshToken } = response.data.data;
+
+      if (!accessToken || !refreshToken) {
+        console.error('AuthContext: Missing tokens in response');
+        return { success: false, error: 'Invalid response from server' };
+      }
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      console.log('AuthContext: Tokens stored in localStorage');
+      
       setUser(user);
+      console.log('AuthContext: User state updated:', user);
 
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Login failed' };
+      console.error('AuthContext: Login error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+      return { success: false, error: errorMessage };
     }
   };
 

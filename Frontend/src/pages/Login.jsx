@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { FaEye, FaEyeSlash, FaNewspaper } from 'react-icons/fa';
@@ -11,9 +11,34 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to home if user is already logged in or after successful login
+  useEffect(() => {
+    if (user) {
+      console.log('User detected in Login component, redirecting to home...');
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
+
+  // Handle navigation after login success
+  useEffect(() => {
+    if (loginSuccess) {
+      console.log('Login success flag set, attempting navigation...');
+      navigate('/', { replace: true });
+      
+      // Fallback after 100ms
+      setTimeout(() => {
+        if (window.location.pathname === '/login') {
+          console.log('Navigation failed, using window.location');
+          window.location.href = '/';
+        }
+      }, 100);
+    }
+  }, [loginSuccess, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -26,16 +51,26 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setLoginSuccess(false);
 
-    const result = await login(formData.email, formData.password);
+    try {
+      console.log('Attempting login with:', formData.email);
+      const result = await login(formData.email, formData.password);
+      console.log('Login result:', result);
 
-    if (result.success) {
-      navigate('/');
-    } else {
-      setError(result.error);
+      if (result.success) {
+        console.log('Login successful, setting success flag...');
+        setLoginSuccess(true);
+      } else {
+        console.error('Login failed:', result.error);
+        setError(result.error || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during login:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

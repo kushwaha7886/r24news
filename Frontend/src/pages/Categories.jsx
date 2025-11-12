@@ -17,11 +17,11 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const response = await api.get('/categories');
-        setCategories(response.data);
+        setCategories(Array.isArray(response.data.data) ? response.data.data : []);
 
         // If categoryId is provided, select that category
         if (categoryId) {
-          const category = response.data.find(cat => cat._id === categoryId);
+          const category = response.data.data.find(cat => cat._id === categoryId);
           if (category) {
             setSelectedCategory(category);
           }

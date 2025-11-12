@@ -42,7 +42,7 @@ const EditArticle = () => {
         });
 
         setExistingMedia(article.media || []);
-        setCategories(categoriesResponse.data);
+        setCategories(Array.isArray(categoriesResponse.data.data) ? categoriesResponse.data.data : []);
       } catch (error) {
         console.error('Error fetching article:', error);
         alert('Failed to load article data');

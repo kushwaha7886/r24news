@@ -19,7 +19,7 @@ import Register from './pages/Register';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true }}>
         <Routes>
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/articles" element={<Layout><Articles /></Layout>} />

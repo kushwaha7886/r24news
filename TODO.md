@@ -1,14 +1,7 @@
-# Fix Frontend Pages Connectivity Issues
+# TODO: Fix 404 Error for Dashboard Data Fetching
 
-## Current Issues:
-- App.jsx missing routes for Dashboard, Categories, Broadcasts, Journalists, MediaAssets, Profile, CreateArticle, EditArticle
-- Categories page uses `/categories/:categoryId` route but not defined in App.jsx
-- Navigation links point to undefined routes
-- Schema relationships not fully utilized in frontend
-
-## Tasks:
-- [ ] Update App.jsx to include all missing routes
-- [ ] Fix Categories page routing and navigation
-- [ ] Add navigation links in Layout component
-- [ ] Ensure proper data relationships display
-- [ ] Test all routes and interconnections
+## Tasks
+- [x] Add getUsers function to User.controller.js
+- [x] Add GET route for /users in User.route.js with verifyJWT
+- [x] Update exports in User.controller.js
+- [x] Test the Dashboard to ensure /users endpoint works (Backend and Frontend servers started, endpoint should now return 200 instead of 404)
