@@ -41,7 +41,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="text-center py-12">
         <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-4">
-          Welcome to <span className="text-primary-600">R24 News</span>
+          Welcome to <span className="text-primary-600">R24TV NEWS BHARAT</span>
         </h1>
         <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
           Stay informed with the latest breaking news, in-depth analysis, and comprehensive coverage from around the world.

@@ -149,7 +149,7 @@ const Broadcasts = () => {
                   {broadcast.article && (
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex items-start">
-                        <FaNewspaper className="text-green-600 mt-1 mr-3" />
+                        <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="text-green-600 mt-1 mr-3 h-4 w-4" />
                         <div>
                           <h4 className="font-medium text-gray-900 mb-1">
                             Featured Article

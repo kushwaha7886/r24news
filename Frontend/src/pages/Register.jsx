@@ -72,8 +72,8 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="flex justify-center">
-            <FaNewspaper className="h-12 w-12 text-primary-600" />
+          <div className="flex justify-center w-full h-full">
+            <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="h-25 w-40" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-secondary-900">
             Create your account

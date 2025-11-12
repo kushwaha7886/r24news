@@ -125,7 +125,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-full">
-                <FaNewspaper className="text-blue-600 text-2xl" />
+                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="text-blue-600 text-2xl w-10 h-10" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Articles</p>
@@ -186,7 +186,7 @@ const Dashboard = () => {
               onClick={() => navigate('/articles')}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center"
             >
-              <FaNewspaper className="mr-2" />
+              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mr-2 h-4 w-4" />
               View All Articles
             </button>
             <button
@@ -207,7 +207,7 @@ const Dashboard = () => {
               onClick={() => navigate('/categories')}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
             >
-              <FaNewspaper className="mr-2" />
+              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mr-2 h-4 w-4" />
               Manage Categories
             </button>
             <button
@@ -285,7 +285,7 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="text-center py-8">
-              <FaNewspaper className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No articles yet
               </h3>

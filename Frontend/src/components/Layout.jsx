@@ -11,9 +11,9 @@ const Layout = ({ children }) => {
     { name: 'Home', href: '/', icon: FaNewspaper },
     { name: 'Articles', href: '/articles', icon: FaNewspaper },
     { name: 'Categories', href: '/categories', icon: FaNewspaper },
-    { name: 'Journalists', href: '/journalists', icon: FaUser },
-    { name: 'Broadcasts', href: '/broadcasts', icon: FaNewspaper },
-    { name: 'Media Assets', href: '/media-assets', icon: FaNewspaper },
+    // { name: 'Journalists', href: '/journalists', icon: FaUser },
+    // { name: 'Broadcasts', href: '/broadcasts', icon: FaNewspaper },
+    // { name: 'Media Assets', href: '/media-assets', icon: FaNewspaper },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -21,13 +21,13 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-secondary-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-secondary-200">
+      <header className="bg-red-600 shadow-sm border-b  border-secondary-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center text-white h-16">
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <FaNewspaper className="h-8 w-8 text-primary-600" />
-                <span className="text-xl font-bold text-secondary-900">R24 News</span>
+                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="h-20 w-20" />
+                <span className="text-xl font-bold text-white">R24TV NEWS BHARAT LIVE</span>
               </Link>
             </div>
 
@@ -46,7 +46,7 @@ const Layout = ({ children }) => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-secondary-700">Welcome, {user.fullName}</span>
+                  <span className=" text-white">Welcome, {user.fullName}</span>
                   <Link to="/dashboard" className="btn btn-secondary">
                     Dashboard
                   </Link>
@@ -87,8 +87,8 @@ const Layout = ({ children }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <FaNewspaper className="h-6 w-6 text-primary-400" />
-                <span className="text-lg font-bold">R24 News</span>
+                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="h-40 w-40" />
+                <span className="text-lg font-bold">R24TV NEWS BHARAT LIVE</span>
               </div>
               <p className="text-secondary-300 text-sm">
                 Your trusted source for breaking news and in-depth journalism.

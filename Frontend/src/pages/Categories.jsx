@@ -166,7 +166,7 @@ const Categories = () => {
                           </div>
                           {article.journalist && (
                             <div className="flex items-center">
-                              <FaNewspaper className="mr-1" />
+                              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mr-1 h-3 w-3" />
                               By {article.journalist.name || 'Unknown'}
                             </div>
                           )}
