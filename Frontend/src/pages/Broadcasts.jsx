@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import api from '../utils/api';
-import { FaBroadcastTower, FaCalendar, FaClock, FaNewspaper } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
+import { FaBroadcastTower, FaCalendar, FaClock, FaNewspaper, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const Broadcasts = () => {
+  const { user } = useContext(AuthContext);
   const [broadcasts, setBroadcasts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('upcoming'); // upcoming, past, all
@@ -47,6 +49,16 @@ const Broadcasts = () => {
     );
   };
 
+  const handleDeleteBroadcast = async (broadcastId) => {
+    try {
+      await api.delete(`/broadcasts/${broadcastId}`);
+      setBroadcasts(prev => prev.filter(broadcast => broadcast._id !== broadcastId));
+    } catch (error) {
+      console.error('Error deleting broadcast:', error);
+      alert('Failed to delete broadcast');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -62,10 +74,23 @@ const Broadcasts = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Broadcast Schedule</h1>
-          <p className="text-lg text-gray-600">
-            Stay updated with our latest broadcast schedules and aired content
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Broadcast Schedule</h1>
+              <p className="text-lg text-gray-600">
+                Stay updated with our latest broadcast schedules and aired content
+              </p>
+            </div>
+            {user && user.userType === 'editor' && (
+              <button
+                onClick={() => window.location.href = '/add-broadcast'}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+              >
+                <FaPlus className="mr-2" />
+                Add Broadcast
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filter Buttons */}
@@ -108,6 +133,33 @@ const Broadcasts = () => {
                         {getStatusBadge(broadcast.airDate)}
                       </div>
                     </div>
+                    {user && user.userType === 'editor' && (
+                      <div className="flex space-x-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = `/add-broadcast?edit=${broadcast._id}`;
+                          }}
+                          className="text-white hover:text-gray-200 p-1"
+                          title="Edit Broadcast"
+                        >
+                          <FaEdit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm('Are you sure you want to delete this broadcast?')) {
+                              // Handle delete broadcast
+                              handleDeleteBroadcast(broadcast._id);
+                            }
+                          }}
+                          className="text-white hover:text-gray-200 p-1"
+                          title="Delete Broadcast"
+                        >
+                          <FaTrash className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 

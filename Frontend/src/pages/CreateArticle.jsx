@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.js';
 import api from '../utils/api';
@@ -14,22 +14,30 @@ const CreateArticle = () => {
     summary: '',
     category: '',
     tags: '',
-    status: 'Draft'
+    status: user?.userType === 'editor' ? 'Published' : 'Pending Approval',
+    journalist: ''
   });
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [youtubeLinks, setYoutubeLinks] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [journalists, setJournalists] = useState([]);
 
-  // Fetch categories on component mount
-  useState(() => {
-    const fetchCategories = async () => {
+  // Fetch categories and journalists on component mount
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await api.get('/categories');
-        setCategories(Array.isArray(response.data.data) ? response.data.data : []);
+        const [categoriesRes, journalistsRes] = await Promise.all([
+          api.get('/categories'),
+          api.get('/journalists')
+        ]);
+
+        setCategories(Array.isArray(categoriesRes.data.data) ? categoriesRes.data.data : []);
+        setJournalists(Array.isArray(journalistsRes.data.data) ? journalistsRes.data.data : []);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchCategories();
+    fetchData();
   }, []);
 
   const handleInputChange = (e) => {
@@ -49,6 +57,26 @@ const CreateArticle = () => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleYoutubeLinkAdd = () => {
+    const link = prompt('Enter YouTube video URL:');
+    if (link && link.trim()) {
+      const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      if (youtubeRegex.test(link.trim())) {
+        setYoutubeLinks(prev => [...prev, { url: link.trim(), caption: '' }]);
+      } else {
+        alert('Please enter a valid YouTube URL.');
+      }
+    }
+  };
+
+  const removeYoutubeLink = (index) => {
+    setYoutubeLinks(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateYoutubeCaption = (index, caption) => {
+    setYoutubeLinks(prev => prev.map((link, i) => i === index ? { ...link, caption } : link));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -58,36 +86,61 @@ const CreateArticle = () => {
 
     setLoading(true);
     try {
-      // Create article data
+      // Create article data - remove status from formData for users, let backend handle it
       const articleData = {
-        ...formData,
-        journalist: user._id,
+        title: formData.title,
+        content: formData.content,
+        summary: formData.summary,
+        category: formData.category,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        media: [] // Will be populated after media upload
+        journalist: formData.journalist,
+        // Only include status if user is editor
+        ...(user?.userType === 'editor' && { status: formData.status })
       };
+
+      console.log('Sending article data:', articleData);
 
       // Create article first
       const articleResponse = await api.post('/articles', articleData);
-      const articleId = articleResponse.data._id;
+      const articleId = articleResponse.data.data._id;
+
+      console.log('Article created:', articleResponse.data);
 
       // Upload media files if any
       if (mediaFiles.length > 0) {
         for (const file of mediaFiles) {
           const mediaFormData = new FormData();
-          mediaFormData.append('type', file.type.startsWith('image/') ? 'Image' :
-                              file.type.startsWith('video/') ? 'Video' : 'Document');
-          mediaFormData.append('url', URL.createObjectURL(file)); // In real app, upload to cloud storage
+          mediaFormData.append('file', file); // Send the actual file
           mediaFormData.append('caption', file.name);
           mediaFormData.append('article', articleId);
 
-          await api.post('/media-assets', mediaFormData);
+          await api.post('/media-assets', mediaFormData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        }
+      }
+
+      // Upload YouTube links if any
+      if (youtubeLinks.length > 0) {
+        for (const link of youtubeLinks) {
+          const mediaData = {
+            type: 'YouTube',
+            url: link.url,
+            caption: link.caption || link.url,
+            article: articleId
+          };
+
+          await api.post('/media-assets', mediaData);
         }
       }
 
       navigate(`/articles/${articleId}`);
     } catch (error) {
       console.error('Error creating article:', error);
-      alert('Failed to create article. Please try again.');
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to create article. Please try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -207,23 +260,60 @@ const CreateArticle = () => {
               />
             </div>
 
-            {/* Status */}
+            {/* Journalist */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                Status
+              <label htmlFor="journalist" className="block text-sm font-medium text-gray-700 mb-2">
+                Journalist *
               </label>
               <select
-                id="status"
-                name="status"
-                value={formData.status}
+                id="journalist"
+                name="journalist"
+                required
+                value={formData.journalist}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="Draft">Draft</option>
-                <option value="Published">Published</option>
-                <option value="Archived">Archived</option>
+                <option value="">Select a journalist</option>
+                {journalists.map(journalist => (
+                  <option key={journalist._id} value={journalist._id}>
+                    {journalist.name} {journalist.designation ? `(${journalist.designation})` : ''}
+                  </option>
+                ))}
               </select>
             </div>
+
+            {/* Status - Only show for editors */}
+            {user?.userType === 'editor' && (
+              <div>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+            )}
+
+            {/* Status display for regular users */}
+            {user?.userType !== 'editor' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600">
+                  Pending Approval
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Your article will be reviewed by an editor before publication.</p>
+              </div>
+            )}
 
             {/* Media Upload */}
             <div>
@@ -233,9 +323,9 @@ const CreateArticle = () => {
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                 <div className="text-center">
                   <FaImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="media-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                      <span>Upload media files</span>
+                  <div className="flex text-sm text-gray-600 justify-center space-x-4">
+                    <label htmlFor="media-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 px-3 py-1">
+                      <span>Upload files</span>
                       <input
                         id="media-upload"
                         name="media-upload"
@@ -246,8 +336,15 @@ const CreateArticle = () => {
                         className="sr-only"
                       />
                     </label>
+                    <button
+                      type="button"
+                      onClick={handleYoutubeLinkAdd}
+                      className="bg-red-600 text-white rounded-md font-medium hover:bg-red-700 px-3 py-1"
+                    >
+                      Add YouTube Link
+                    </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF, MP4, PDF, DOC up to 10MB each</p>
+                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF, MP4, PDF, DOC up to 10MB each, or YouTube links</p>
                 </div>
               </div>
 
@@ -267,6 +364,36 @@ const CreateArticle = () => {
                         type="button"
                         onClick={() => removeMediaFile(index)}
                         className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Display YouTube links */}
+              {youtubeLinks.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {youtubeLinks.map((link, index) => (
+                    <div key={index} className="flex items-center justify-between bg-red-50 p-3 rounded-md">
+                      <div className="flex items-center flex-1">
+                        <FaVideo className="text-red-500 mr-2" />
+                        <div className="flex-1">
+                          <span className="text-sm text-gray-700 block">{link.url}</span>
+                          <input
+                            type="text"
+                            placeholder="Add caption (optional)"
+                            value={link.caption}
+                            onChange={(e) => updateYoutubeCaption(index, e.target.value)}
+                            className="mt-1 w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeYoutubeLink(index)}
+                        className="text-red-500 hover:text-red-700 ml-2"
                       >
                         Remove
                       </button>

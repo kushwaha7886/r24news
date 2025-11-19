@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
-import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaSearch, FaFilter, FaVideo } from 'react-icons/fa';
+import News from '../components/News';
 
 const Articles = () => {
+  const getYouTubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const getYouTubeThumbnail = (url) => {
+    const videoId = getYouTubeVideoId(url);
+    return videoId ? `https://img.youtube.com/vi/${videoId}/0.jpg` : null;
+  };
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +139,12 @@ const Articles = () => {
         </div>
       </div>
 
+      {/* Latest News from RSS Feeds */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold text-secondary-900 mb-4">Breaking News from Around the World</h2>
+        <News />
+      </section>
+
       {/* Articles Grid */}
       {articles.length === 0 ? (
         <div className="text-center py-12">
@@ -141,11 +158,24 @@ const Articles = () => {
             {articles.map((article) => (
               <article key={article._id} className="card group hover:shadow-lg transition-shadow duration-300">
                 {article.media && article.media.length > 0 && (
-                  <img
-                    src={article.media[0].url}
-                    alt={article.title}
-                    className="w-full h-48 object-cover rounded-t-lg mb-4"
-                  />
+                  article.media[0].type === 'YouTube' ? (
+                    <div className="relative w-full h-48 bg-gray-200 rounded-t-lg mb-4 overflow-hidden">
+                      <img
+                        src={getYouTubeThumbnail(article.media[0].url)}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <FaVideo className="text-red-500 text-3xl bg-white bg-opacity-80 rounded-full p-2" />
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={article.media[0].url}
+                      alt={article.title}
+                      className="w-full h-48 object-cover rounded-t-lg mb-4"
+                    />
+                  )
                 )}
                 <div className="space-y-3">
                   <div className="flex items-center text-sm text-secondary-500 space-x-4">

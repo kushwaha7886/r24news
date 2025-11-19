@@ -15,6 +15,10 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AddJournalist from './pages/AddJournalist';
+import AddCategory from './pages/AddCategory';
+import AddMediaAsset from './pages/AddMediaAsset';
+import PendingArticles from './pages/PendingArticles';
 
 function App() {
   return (
@@ -26,6 +30,7 @@ function App() {
           <Route path="/articles/:id" element={<Layout><ArticleDetail /></Layout>} />
           <Route path="/articles/new" element={<Layout><CreateArticle /></Layout>} />
           <Route path="/edit-article/:id" element={<Layout><EditArticle /></Layout>} />
+          <Route path="/pending-articles" element={<Layout><PendingArticles /></Layout>} />
           <Route path="/categories" element={<Layout><Categories /></Layout>} />
           <Route path="/categories/:categoryId" element={<Layout><Categories /></Layout>} />
           <Route path="/broadcasts" element={<Layout><Broadcasts /></Layout>} />
@@ -33,6 +38,9 @@ function App() {
           <Route path="/media-assets" element={<Layout><MediaAssets /></Layout>} />
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
+          <Route path="/add-journalist" element={<Layout><AddJournalist /></Layout>} />
+          <Route path="/add-category" element={<Layout><AddCategory /></Layout>} />
+          <Route path="/add-media-asset" element={<Layout><AddMediaAsset /></Layout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

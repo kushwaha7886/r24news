@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { FaUser, FaEnvelope, FaBriefcase, FaFileAlt, FaCalendar } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
+import { FaUser, FaEnvelope, FaBriefcase, FaFileAlt, FaCalendar, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const Journalists = () => {
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [journalists, setJournalists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedJournalist, setSelectedJournalist] = useState(null);
@@ -12,7 +16,7 @@ const Journalists = () => {
     const fetchJournalists = async () => {
       try {
         const response = await api.get('/journalists');
-        setJournalists(response.data);
+        setJournalists(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (error) {
         console.error('Error fetching journalists:', error);
       } finally {
@@ -31,6 +35,16 @@ const Journalists = () => {
     setSelectedJournalist(null);
   };
 
+  const handleDeleteJournalist = async (journalistId) => {
+    try {
+      await api.delete(`/journalists/${journalistId}`);
+      setJournalists(prev => prev.filter(journalist => journalist._id !== journalistId));
+    } catch (error) {
+      console.error('Error deleting journalist:', error);
+      alert('Failed to delete journalist');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -46,10 +60,23 @@ const Journalists = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Journalists</h1>
-          <p className="text-lg text-gray-600">
-            Meet the talented writers and reporters behind our stories
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Journalists</h1>
+              <p className="text-lg text-gray-600">
+                Meet the talented writers and reporters behind our stories
+              </p>
+            </div>
+            {user && user.userType === 'editor' && (
+              <button
+                onClick={() => navigate('/add-journalist')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+              >
+                <FaPlus className="mr-2" />
+                Add Journalist
+              </button>
+            )}
+          </div>
         </div>
 
         {journalists.length > 0 ? (
@@ -61,7 +88,7 @@ const Journalists = () => {
                 onClick={() => handleJournalistClick(journalist)}
               >
                 {/* Profile Image */}
-                <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="h-48 bg-linera-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                   {journalist.profileImage ? (
                     <img
                       src={journalist.profileImage}
@@ -75,9 +102,39 @@ const Journalists = () => {
 
                 {/* Journalist Info */}
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {journalist.name}
-                  </h3>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      {journalist.name}
+                    </h3>
+                    {user && user.userType === 'editor' && (
+                      <div className="flex space-x-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle edit journalist
+                            navigate('/add-journalist', { state: { journalist } });
+                          }}
+                          className="text-green-600 hover:text-green-800 p-1"
+                          title="Edit Journalist"
+                        >
+                          <FaEdit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm('Are you sure you want to delete this journalist?')) {
+                              // Handle delete journalist
+                              handleDeleteJournalist(journalist._id);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-800 p-1"
+                          title="Delete Journalist"
+                        >
+                          <FaTrash className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   {journalist.designation && (
                     <div className="flex items-center text-gray-600 mb-2">
@@ -134,7 +191,7 @@ const Journalists = () => {
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Profile Image */}
                   <div className="md:w-1/3">
-                    <div className="w-full h-64 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-64 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                       {selectedJournalist.profileImage ? (
                         <img
                           src={selectedJournalist.profileImage}

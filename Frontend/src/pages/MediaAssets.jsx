@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { FaImage, FaVideo, FaFile, FaDownload, FaEye, FaTrash } from 'react-icons/fa';
+import { FaImage, FaVideo, FaFile, FaDownload, FaEye, FaTrash, FaPlus } from 'react-icons/fa';
 
 const MediaAssets = () => {
   const [mediaAssets, setMediaAssets] = useState([]);
@@ -102,10 +102,21 @@ const MediaAssets = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Media Assets</h1>
-          <p className="text-lg text-gray-600">
-            Browse and manage all media files associated with articles
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Media Assets</h1>
+              <p className="text-lg text-gray-600">
+                Browse and manage all media files associated with articles
+              </p>
+            </div>
+            <button
+              onClick={() => window.location.href = '/add-media-asset'}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+            >
+              <FaPlus className="mr-2" />
+              Add Media Asset
+            </button>
+          </div>
         </div>
 
         {/* Filter Buttons */}

@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
-import { FaTag, FaNewspaper, FaEye, FaCalendar } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
+import { FaTag, FaNewspaper, FaEye, FaCalendar, FaTrash, FaEdit } from 'react-icons/fa';
 
 const Categories = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams();
+  const { user } = useContext(AuthContext);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [articles, setArticles] = useState([]);
@@ -65,6 +67,20 @@ const Categories = () => {
     navigate(`/articles/${articleId}`);
   };
 
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await api.delete(`/categories/${categoryId}`);
+      setCategories(prev => prev.filter(cat => cat._id !== categoryId));
+      if (selectedCategory && selectedCategory._id === categoryId) {
+        setSelectedCategory(null);
+        setArticles([]);
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('Failed to delete category');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -96,22 +112,55 @@ const Categories = () => {
               </h2>
               <div className="space-y-2">
                 {categories.map((category) => (
-                  <button
+                  <div
                     key={category._id}
-                    onClick={() => handleCategoryClick(category)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       selectedCategory?._id === category._id
                         ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-600'
                         : 'hover:bg-gray-50 text-gray-700'
                     }`}
                   >
-                    <div className="font-medium">{category.name}</div>
-                    {category.description && (
-                      <div className="text-sm text-gray-500 mt-1">
-                        {category.description}
-                      </div>
-                    )}
-                  </button>
+                    <div className="flex justify-between items-start">
+                      <button
+                        onClick={() => handleCategoryClick(category)}
+                        className="flex-1 text-left"
+                      >
+                        <div className="font-medium">{category.name}</div>
+                        {category.description && (
+                          <div className="text-sm text-gray-500 mt-1">
+                            {category.description}
+                          </div>
+                        )}
+                      </button>
+                      {user && user.userType === 'editor' && (
+                        <div className="flex space-x-1 ml-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle edit category
+                              navigate('/add-category', { state: { category } });
+                            }}
+                            className="text-green-600 hover:text-green-800 p-1"
+                            title="Edit Category"
+                          >
+                            <FaEdit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm('Are you sure you want to delete this category?')) {
+                                handleDeleteCategory(category._id);
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Delete Category"
+                          >
+                            <FaTrash className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

@@ -31,7 +31,7 @@ const EditArticle = () => {
           api.get('/categories')
         ]);
 
-        const article = articleResponse.data;
+        const article = articleResponse.data.data;
         setFormData({
           title: article.title || '',
           content: article.content || '',
@@ -108,13 +108,15 @@ const EditArticle = () => {
       if (mediaFiles.length > 0) {
         for (const file of mediaFiles) {
           const mediaFormData = new FormData();
-          mediaFormData.append('type', file.type.startsWith('image/') ? 'Image' :
-                              file.type.startsWith('video/') ? 'Video' : 'Document');
-          mediaFormData.append('url', URL.createObjectURL(file)); // In real app, upload to cloud storage
+          mediaFormData.append('file', file); // Send the actual file
           mediaFormData.append('caption', file.name);
           mediaFormData.append('article', id);
 
-          await api.post('/media-assets', mediaFormData);
+          await api.post('/media-assets', mediaFormData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
         }
       }
 
@@ -252,23 +254,39 @@ const EditArticle = () => {
               />
             </div>
 
-            {/* Status */}
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Draft">Draft</option>
-                <option value="Published">Published</option>
-                <option value="Archived">Archived</option>
-              </select>
-            </div>
+            {/* Status - Only show for editors */}
+            {user?.userType === 'editor' && (
+              <div>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                  <option value="Archived">Archived</option>
+                  <option value="Pending Approval">Pending Approval</option>
+                </select>
+              </div>
+            )}
+
+            {/* Status display for regular users */}
+            {user?.userType !== 'editor' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600">
+                  {formData.status}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Status can only be changed by an editor.</p>
+              </div>
+            )}
 
             {/* Existing Media */}
             {existingMedia.length > 0 && (

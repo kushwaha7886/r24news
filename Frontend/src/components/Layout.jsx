@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { FaNewspaper, FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import logo from '../assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -11,7 +12,7 @@ const Layout = ({ children }) => {
     { name: 'Home', href: '/', icon: FaNewspaper },
     { name: 'Articles', href: '/articles', icon: FaNewspaper },
     { name: 'Categories', href: '/categories', icon: FaNewspaper },
-    // { name: 'Journalists', href: '/journalists', icon: FaUser },
+    { name: 'Journalists', href: '/journalists', icon: FaUser },
     // { name: 'Broadcasts', href: '/broadcasts', icon: FaNewspaper },
     // { name: 'Media Assets', href: '/media-assets', icon: FaNewspaper },
   ];
@@ -21,17 +22,17 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-secondary-50">
       {/* Header */}
-      <header className="bg-red-600 shadow-sm border-b  border-secondary-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-indigo-700 shadow-sm border-b  border-secondary-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
           <div className="flex justify-between items-center text-white h-16">
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="h-20 w-20" />
+                <img src={logo} alt="Logo" className="h-18 w-30" />
                 <span className="text-xl font-bold text-white">R24TV NEWS BHARAT LIVE</span>
               </Link>
             </div>
 
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-8">  
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -47,9 +48,16 @@ const Layout = ({ children }) => {
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className=" text-white">Welcome, {user.fullName}</span>
-                  <Link to="/dashboard" className="btn btn-secondary">
-                    Dashboard
-                  </Link>
+                  {user.userType === 'editor' && (
+                    <>
+                      <Link to="/dashboard" className="btn btn-secondary">
+                        Dashboard
+                      </Link>
+                      <Link to="/pending-articles" className="btn btn-secondary">
+                        Approvals
+                      </Link>
+                    </>
+                  )}
                   <Link to="/profile" className="btn btn-secondary">
                     <FaUser className="h-4 w-4 mr-2" />
                     Profile
@@ -77,9 +85,16 @@ const Layout = ({ children }) => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl  mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-amber-50">
         {children}
       </main>
+
+      {/* Plausible Analytics */}
+      <script
+        defer
+        data-domain="r24news.com"
+        src="https://plausible.io/js/script.js"
+      ></script>
 
       {/* Footer */}
       <footer className="bg-secondary-900 text-white mt-16">
@@ -87,7 +102,7 @@ const Layout = ({ children }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="h-40 w-40" />
+                <img src={logo} alt="Logo" className="h-30 w-40" />
                 <span className="text-lg font-bold">R24TV NEWS BHARAT LIVE</span>
               </div>
               <p className="text-secondary-300 text-sm">
@@ -117,10 +132,12 @@ const Layout = ({ children }) => {
             </div>
             <div>
               <h3 className="text-sm font-semibold mb-4">Contact</h3>
-              <p className="text-secondary-300 text-sm">
-                Email: info@r24news.com<br />
-                Phone: +1 (555) 123-4567
-              </p>
+              <div className="text-secondary-300 text-sm">
+                <div><img className="inline-block h-25 w-30 rounded-sm mr-2" src="/photo rajkumar.jpeg" alt="RAJKUMAR" /></div>
+                Email: rrantv4@gmail.com<br />
+                Phone: +91 9644444676<br />
+                Address: 123 News St, Mumbai, India
+              </div>
             </div>
           </div>
           <div className="border-t border-secondary-700 mt-8 pt-8 text-center">

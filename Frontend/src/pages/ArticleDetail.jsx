@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaArrowLeft, FaShare } from 'react-icons/fa';
@@ -11,12 +11,18 @@ const ArticleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
 
+  const getYouTubeVideoId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   useEffect(() => {
     fetchArticle();
     fetchComments();
   }, [id]);
 
-  const fetchArticle = async () => {
+  const fetchArticle = useCallback(async () => {
     try {
       const response = await api.get(`/articles/${id}`);
       setArticle(response.data.data);
@@ -25,16 +31,16 @@ const ArticleDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await api.get(`/comments?article=${id}`);
       setComments(response.data.data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
-  };
+  }, [id]);
 
   const handleLike = async () => {
     try {
@@ -47,7 +53,7 @@ const ArticleDetail = () => {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !id) return;
 
     setSubmittingComment(true);
     try {
@@ -105,65 +111,81 @@ const ArticleDetail = () => {
       </Link>
 
       {/* Article Header */}
-      <article className="card">
+      <article className="bg-white rounded-lg shadow-md overflow-hidden">
         {article.media && article.media.length > 0 && (
-          <img
-            src={article.media[0].url}
-            alt={article.title}
-            className="w-full h-64 md:h-96 object-cover rounded-t-lg mb-6"
-          />
+          <>
+            {article.media[0].type === 'YouTube' ? (
+              <div className="w-full aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYouTubeVideoId(article.media[0].url)}`}
+                  title={article.media[0].caption || article.title}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <img
+                src={article.media[0].url}
+                alt={article.title}
+                className="w-full h-64 md:h-96 object-cover"
+              />
+            )}
+          </>
         )}
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center space-x-4 text-sm text-secondary-500">
-              <span className="flex items-center">
-                <FaCalendarAlt className="h-4 w-4 mr-1" />
-                {new Date(article.publishDate || article.createdAt).toLocaleDateString()}
-              </span>
-              <span className="flex items-center">
-                <FaEye className="h-4 w-4 mr-1" />
-                {article.views || 0} views
-              </span>
-              <span className="bg-secondary-100 text-secondary-700 px-2 py-1 rounded text-xs">
-                {article.category?.name || 'Uncategorized'}
-              </span>
+        <div className="p-6">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center space-x-4 text-sm text-secondary-500">
+                <span className="flex items-center">
+                  <FaCalendarAlt className="h-4 w-4 mr-1" />
+                  {new Date(article.publishDate || article.createdAt).toLocaleDateString()}
+                </span>
+                <span className="flex items-center">
+                  <FaEye className="h-4 w-4 mr-1" />
+                  {article.views || 0} views
+                </span>
+                <span className="bg-secondary-100 text-secondary-700 px-2 py-1 rounded text-xs">
+                  {article.category?.name || 'Uncategorized'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleLike}
+                  className="flex items-center space-x-1 text-secondary-600 hover:text-red-600 transition-colors"
+                >
+                  <FaHeart className="h-4 w-4" />
+                  <span>{article.likes || 0}</span>
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center space-x-1 text-secondary-600 hover:text-primary-600 transition-colors"
+                >
+                  <FaShare className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleLike}
-                className="flex items-center space-x-1 text-secondary-600 hover:text-red-600 transition-colors"
-              >
-                <FaHeart className="h-4 w-4" />
-                <span>{article.likes || 0}</span>
-              </button>
-              <button
-                onClick={handleShare}
-                className="flex items-center space-x-1 text-secondary-600 hover:text-primary-600 transition-colors"
-              >
-                <FaShare className="h-4 w-4" />
-              </button>
+
+            <h1 className="text-3xl md:text-4xl font-bold text-secondary-900">{article.title}</h1>
+
+            {article.summary && (
+              <p className="text-xl text-secondary-600 font-medium">{article.summary}</p>
+            )}
+
+            {article.journalist && (
+              <div className="flex items-center space-x-2 text-secondary-600">
+                <FaUser className="h-4 w-4" />
+                <span>By {article.journalist.name}</span>
+                {article.journalist.designation && (
+                  <span className="text-sm">• {article.journalist.designation}</span>
+                )}
+              </div>
+            )}
+
+            <div className="prose prose-lg max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: article.content }} />
             </div>
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-bold text-secondary-900">{article.title}</h1>
-
-          {article.summary && (
-            <p className="text-xl text-secondary-600 font-medium">{article.summary}</p>
-          )}
-
-          {article.journalist && (
-            <div className="flex items-center space-x-2 text-secondary-600">
-              <FaUser className="h-4 w-4" />
-              <span>By {article.journalist.name}</span>
-              {article.journalist.designation && (
-                <span className="text-sm">• {article.journalist.designation}</span>
-              )}
-            </div>
-          )}
-
-          <div className="prose prose-lg max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: article.content }} />
           </div>
         </div>
       </article>

@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { FaEye, FaHeart, FaCalendarAlt, FaUser } from 'react-icons/fa';
+import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaVideo } from 'react-icons/fa';
+import News from '../components/News';
+import Weather from '../components/Weather';
+
+const getYouTubeVideoId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
 
 const Home = () => {
   const [featuredArticles, setFeaturedArticles] = useState([]);
@@ -41,7 +49,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="text-center py-12">
         <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-4">
-          Welcome to <span className="text-primary-600">R24TV NEWS BHARAT</span>
+          Welcome to <span className="text-red-600">R24TV NEWS BHARAT LIVE</span>
         </h1>
         <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
           Stay informed with the latest breaking news, in-depth analysis, and comprehensive coverage from around the world.
@@ -55,11 +63,25 @@ const Home = () => {
           {featuredArticles.map((article) => (
             <article key={article._id} className="card group hover:shadow-lg transition-shadow duration-300">
               {article.media && article.media.length > 0 && (
-                <img
-                  src={article.media[0].url}
-                  alt={article.title}
-                  className="w-full h-48 object-cover rounded-t-lg mb-4"
-                />
+                article.media[0].type === 'YouTube' ? (
+                  <div className="relative w-full h-48 bg-gray-200 rounded-t-lg mb-4 overflow-hidden">
+                    <img
+                      src={`https://img.youtube.com/vi/${getYouTubeVideoId(article.media[0].url)}/0.jpg`}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <FaVideo className="text-red-500 text-3xl bg-white bg-opacity-80 rounded-full p-2" />
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={article.media[0].url}
+                    alt={article.title}
+                    className="w-full h-48 object-cover rounded-t-lg mb-4"
+                  />
+                )
               )}
               <div className="space-y-3">
                 <div className="flex items-center text-sm text-secondary-500 space-x-4">
@@ -118,6 +140,17 @@ const Home = () => {
               <p className="text-secondary-600 text-sm mt-2">{category.description}</p>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Weather and News Widgets */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <Weather />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-secondary-900 mb-4">Breaking News from Around the World</h2>
+          <News />
         </div>
       </section>
 

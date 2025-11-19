@@ -18,12 +18,25 @@ export const AuthProvider = ({ children }) => {
 
   const getCurrentUser = async () => {
     try {
-      const response = await api.get('/users/current-user');
-      setUser(response.data.data);
+      const userType = localStorage.getItem('userType');
+      if (userType === 'editor') {
+        // For editors, we don't have a current-user endpoint, so we'll use the stored user data
+        const storedUser = JSON.parse(localStorage.getItem('userData'));
+        if (storedUser) {
+          setUser({ ...storedUser, userType: 'editor' });
+        } else {
+          throw new Error('No stored editor data');
+        }
+      } else {
+        const response = await api.get('/users/current-user');
+        setUser({ ...response.data.data, userType: 'user' });
+      }
     } catch (error) {
       console.error('Error fetching current user:', error);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userData');
     } finally {
       setLoading(false);
     }
@@ -31,28 +44,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log('AuthContext: Sending login request...');
-      const response = await api.post('/users/login', { email, password });
-      console.log('AuthContext: Login response received:', response.data);
-      
-      const { user, accessToken, refreshToken } = response.data.data;
+      console.log('AuthContext: Attempting user login...');
+      const userResponse = await api.post('/users/login', { email, password });
+      console.log('AuthContext: User login response received:', userResponse.data);
+
+      const { user, accessToken, refreshToken } = userResponse.data.data;
 
       if (!accessToken || !refreshToken) {
-        console.error('AuthContext: Missing tokens in response');
+        console.error('AuthContext: Missing tokens in user response');
         return { success: false, error: 'Invalid response from server' };
       }
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('userType', user.role === 'editor' ? 'editor' : 'user');
       console.log('AuthContext: Tokens stored in localStorage');
-      
-      setUser(user);
+
+      setUser({ ...user, userType: user.role === 'editor' ? 'editor' : 'user' });
       console.log('AuthContext: User state updated:', user);
 
       return { success: true };
-    } catch (error) {
-      console.error('AuthContext: Login error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    } catch (userError) {
+      console.error('AuthContext: Login failed');
+      const errorMessage = userError.response?.data?.message || 'Login failed';
       return { success: false, error: errorMessage };
     }
   };
@@ -80,6 +94,8 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userData');
       setUser(null);
     }
   };

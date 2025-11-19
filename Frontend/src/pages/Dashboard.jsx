@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 import { FaNewspaper, FaUsers, FaImage, FaBroadcastTower, FaPlus, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import Weather from '../components/Weather';
+import News from '../components/News';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -81,17 +83,17 @@ const Dashboard = () => {
     navigate(`/articles/${articleId}`);
   };
 
-  if (!user) {
+  if (!user || user.userType !== 'editor') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-6">Please login to access the dashboard.</p>
+          <p className="text-gray-600 mb-6">You do not have permission to access the dashboard.</p>
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
-            Login
+            Go to Home
           </button>
         </div>
       </div>
@@ -123,26 +125,48 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="text-blue-600 text-2xl w-10 h-10" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="text-blue-600 text-2xl w-10 h-10" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Articles</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.articles}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Articles</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.articles}</p>
-              </div>
+              {user && user.userType === 'editor' && (
+                <button
+                  onClick={() => navigate('/articles')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1 border border-blue-600 rounded hover:bg-blue-50"
+                  title="Edit Articles"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <FaUsers className="text-green-600 text-2xl" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <FaUsers className="text-green-600 text-2xl" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Journalists</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
-              </div>
+              {user && user.userType === 'editor' && (
+                <button
+                  onClick={() => navigate('/journalists')}
+                  className="text-green-600 hover:text-green-800 text-sm font-medium px-3 py-1 border border-green-600 rounded hover:bg-green-50"
+                  title="Edit Journalists"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
 
@@ -159,14 +183,25 @@ const Dashboard = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-orange-100 rounded-full">
-                <FaBroadcastTower className="text-orange-600 text-2xl" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="p-3 bg-orange-100 rounded-full">
+                  <FaBroadcastTower className="text-orange-600 text-2xl" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Broadcasts</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.broadcasts}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Broadcasts</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.broadcasts}</p>
-              </div>
+              {user && user.userType === 'editor' && (
+                <button
+                  onClick={() => navigate('/broadcasts')}
+                  className="text-orange-600 hover:text-orange-800 text-sm font-medium px-3 py-1 border border-orange-600 rounded hover:bg-orange-50"
+                  title="Edit Broadcasts"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -175,13 +210,6 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
-            <button
-              onClick={handleCreateArticle}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
-            >
-              <FaPlus className="mr-2" />
-              Create Article
-            </button>
             <button
               onClick={() => navigate('/articles')}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center"
@@ -218,6 +246,12 @@ const Dashboard = () => {
               View Journalists
             </button>
           </div>
+        </div>
+
+        {/* Weather and News */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <Weather />
+          <News />
         </div>
 
         {/* Recent Articles */}
