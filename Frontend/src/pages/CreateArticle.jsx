@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.js';
 import api from '../utils/api';
@@ -276,7 +276,7 @@ const CreateArticle = () => {
                 <option value="">Select a journalist</option>
                 {journalists.map(journalist => (
                   <option key={journalist._id} value={journalist._id}>
-                    {journalist.name} {journalist.designation ? `(${journalist.designation})` : ''}
+                    {journalist.fullName} {journalist.designation ? `(${journalist.designation})` : ''}
                   </option>
                 ))}
               </select>

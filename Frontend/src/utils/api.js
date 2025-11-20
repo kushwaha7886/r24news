@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1'; // Adjust this to match your backend URL
 
+// Helper function to get the base URL
+export const getBaseUrl = () => API_BASE_URL;
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -34,7 +37,6 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        const userType = localStorage.getItem('userType') || 'user';
         const refreshEndpoint = '/users/refresh-token';
 
         const response = await axios.post(`${API_BASE_URL}${refreshEndpoint}`, {

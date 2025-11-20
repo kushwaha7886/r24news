@@ -98,7 +98,7 @@ const Home = () => {
                     {article.likes || 0}
                   </span>
                 </div>
-                <h3 className="text-xl font-semibold text-secondary-900 group-hover:text-primary-600 transition-colors">
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-red-700 transition-colors">
                   <Link to={`/articles/${article._id}`}>{article.title}</Link>
                 </h3>
                 <p className="text-secondary-600 line-clamp-3">{article.summary || article.content.substring(0, 150)}...</p>

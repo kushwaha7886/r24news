@@ -31,7 +31,7 @@ const PendingArticles = () => {
   }, [currentPage]);
 
   useEffect(() => {
-    if (user?.userType === 'editor') {
+    if (user && (user.role === 'editor' || user.role === 'admin' || user.userType === 'editor' || user.userType === 'admin')) {
       fetchPendingArticles();
     }
   }, [currentPage, user, fetchPendingArticles]);
@@ -41,8 +41,8 @@ const PendingArticles = () => {
 
     try {
       await api.put(`/articles/${articleId}/approve`);
-      // Remove from pending list
-      setArticles(articles.filter(article => article._id !== articleId));
+      // Refresh the pending articles list to ensure it's updated from server
+      fetchPendingArticles();
     } catch (error) {
       console.error('Error approving article:', error);
       alert('Failed to approve article. Please try again.');
@@ -54,20 +54,20 @@ const PendingArticles = () => {
 
     try {
       await api.put(`/articles/${articleId}/reject`);
-      // Remove from pending list
-      setArticles(articles.filter(article => article._id !== articleId));
+      // Refresh the pending articles list to ensure it's updated from server
+      fetchPendingArticles();
     } catch (error) {
       console.error('Error rejecting article:', error);
       alert('Failed to reject article. Please try again.');
     }
   };
 
-  if (!user || user.userType !== 'editor') {
+  if (!user || (user.userType !== 'editor' && user.userType !== 'admin')) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-6">Only editors can access this page.</p>
+          <p className="text-gray-600 mb-6">Only editors and admins can access this page.</p>
         </div>
       </div>
     );

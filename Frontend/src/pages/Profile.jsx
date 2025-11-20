@@ -49,7 +49,7 @@ const Profile = () => {
 
     try {
       // Update profile information
-      const response = await api.put('/users/update-account', {
+      const response = await api.patch('/users/update-account', {
         fullName: formData.fullName,
         email: formData.email
       });
@@ -234,6 +234,16 @@ const Profile = () => {
                     {user.email}
                   </p>
                 )}
+              </div>
+
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <p className="text-gray-900 py-2 capitalize">
+                  {user.role || 'Reader'}
+                </p>
               </div>
 
               {/* Account Created */}

@@ -132,7 +132,7 @@ const Categories = () => {
                           </div>
                         )}
                       </button>
-                      {user && user.userType === 'editor' && (
+                      {user && (user.userType === 'editor' || user.role === 'admin') && (
                         <div className="flex space-x-1 ml-2">
                           <button
                             onClick={(e) => {

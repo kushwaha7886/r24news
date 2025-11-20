@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
-import { FaNewspaper, FaUsers, FaImage, FaBroadcastTower, FaPlus, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { FaNewspaper, FaUsers, FaImage, FaBroadcastTower, FaPlus, FaEdit, FaTrash, FaEye, FaTag } from 'react-icons/fa';
 import Weather from '../components/Weather';
 import News from '../components/News';
 
@@ -16,35 +16,39 @@ const Dashboard = () => {
     broadcasts: 0
   });
   const [recentArticles, setRecentArticles] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [articlesRes, usersRes, mediaRes, broadcastsRes] = await Promise.all([
+        const [articlesRes, categoriesRes, mediaRes, broadcastsRes] = await Promise.all([
           api.get('/articles'),
-          api.get('/users'), // This might need admin access
+          api.get('/categories'),
           api.get('/media-assets'),
           api.get('/broadcasts')
         ]);
 
         setStats({
-          articles: articlesRes.data.total || articlesRes.data.length || 0,
-          users: usersRes.data.total || usersRes.data.length || 0,
-          mediaAssets: mediaRes.data.total || mediaRes.data.length || 0,
-          broadcasts: broadcastsRes.data.total || broadcastsRes.data.length || 0
+          articles: articlesRes.data.total || articlesRes.data.data?.length || 0,
+          categories: categoriesRes.data.data?.length || 0,
+          mediaAssets: mediaRes.data.total || mediaRes.data.data?.length || 0,
+          broadcasts: broadcastsRes.data.total || broadcastsRes.data.data?.length || 0
         });
 
         // Get recent articles
         const articles = articlesRes.data.data || articlesRes.data;
         setRecentArticles(articles.articles ? articles.articles.slice(0, 5) : []);
+
+        // Set users for admin functionality
+        setUsers([]);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         // Set default values if API calls fail
         setStats({
           articles: 0,
-          users: 0,
+          categories: 0,
           mediaAssets: 0,
           broadcasts: 0
         });
@@ -58,9 +62,7 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  const handleCreateArticle = () => {
-    navigate('/articles/new');
-  };
+
 
   const handleEditArticle = (articleId) => {
     navigate(`/edit-article/${articleId}`);
@@ -83,7 +85,30 @@ const Dashboard = () => {
     navigate(`/articles/${articleId}`);
   };
 
-  if (!user || user.userType !== 'editor') {
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await api.patch(`/users/${userId}/role`, { role: newRole });
+      setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
+      alert('User role updated successfully');
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Failed to update user role');
+    }
+  };
+
+  const handleResetPassword = async (userId) => {
+    if (window.confirm('Are you sure you want to reset this user\'s password? They will receive an email with reset instructions.')) {
+      try {
+        await api.post(`/users/${userId}/reset-password`);
+        alert('Password reset email sent to user successfully');
+      } catch (error) {
+        console.error('Error resetting password:', error);
+        alert('Failed to reset password');
+      }
+    }
+  };
+
+  if (!user || (user.role !== 'editor' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -112,7 +137,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-amber-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -135,7 +160,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-bold text-gray-900">{stats.articles}</p>
                 </div>
               </div>
-              {user && user.userType === 'editor' && (
+              {(user && (user.role === 'editor' || user.role === 'admin')) && (
                 <button
                   onClick={() => navigate('/articles')}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1 border border-blue-600 rounded hover:bg-blue-50"
@@ -151,18 +176,18 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-full">
-                  <FaUsers className="text-green-600 text-2xl" />
+                  <FaTag className="text-green-600 text-2xl" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Journalists</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
+                  <p className="text-sm font-medium text-gray-600">Categories</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.categories || 0}</p>
                 </div>
               </div>
-              {user && user.userType === 'editor' && (
+              {(user && (user.role === 'editor' || user.role === 'admin')) && (
                 <button
-                  onClick={() => navigate('/journalists')}
+                  onClick={() => navigate('/categories')}
                   className="text-green-600 hover:text-green-800 text-sm font-medium px-3 py-1 border border-green-600 rounded hover:bg-green-50"
-                  title="Edit Journalists"
+                  title="Edit Categories"
                 >
                   Edit
                 </button>
@@ -193,7 +218,7 @@ const Dashboard = () => {
                   <p className="text-2xl font-bold text-gray-900">{stats.broadcasts}</p>
                 </div>
               </div>
-              {user && user.userType === 'editor' && (
+              {(user && (user.role === 'editor' || user.role === 'admin')) && (
                 <button
                   onClick={() => navigate('/broadcasts')}
                   className="text-orange-600 hover:text-orange-800 text-sm font-medium px-3 py-1 border border-orange-600 rounded hover:bg-orange-50"
@@ -206,47 +231,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => navigate('/articles')}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center"
-            >
-              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mr-2 h-4 w-4" />
-              View All Articles
-            </button>
-            <button
-              onClick={() => navigate('/media-assets')}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center"
-            >
-              <FaImage className="mr-2" />
-              Manage Media
-            </button>
-            <button
-              onClick={() => navigate('/broadcasts')}
-              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center"
-            >
-              <FaBroadcastTower className="mr-2" />
-              View Broadcasts
-            </button>
-            <button
-              onClick={() => navigate('/categories')}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
-            >
-              <img src="/src/assets/sp_20250226-Copy-Copy_360p_12f_20250401_092620.gif" alt="Logo" className="mr-2 h-4 w-4" />
-              Manage Categories
-            </button>
-            <button
-              onClick={() => navigate('/journalists')}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center"
-            >
-              <FaUsers className="mr-2" />
-              View Journalists
-            </button>
-          </div>
-        </div>
+
 
         {/* Weather and News */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -323,19 +308,92 @@ const Dashboard = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No articles yet
               </h3>
-              <p className="text-gray-600 mb-4">
-                Start creating your first article to see it here.
+              <p className="text-gray-600">
+                Articles will appear here once created.
               </p>
-              <button
-                onClick={handleCreateArticle}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Create Your First Article
-              </button>
             </div>
           )}
         </div>
+
+        {/* User Management - Admin Only */}
+        {user && user.role === 'admin' && (
+          <div className="bg-white rounded-lg shadow-md p-6 mt-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
+            </div>
+
+            {users.length > 0 ? (
+              <div className="space-y-4">
+                {users.map((u) => (
+                  <div
+                    key={u._id}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">{u.fullName}</h3>
+                      <p className="text-sm text-gray-600">{u.email}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        u.role === 'admin'
+                          ? 'bg-red-100 text-red-800'
+                          : u.role === 'editor'
+                          ? 'bg-blue-100 text-blue-800'
+                          : u.role === 'journalist'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {u.role}
+                      </span>
+                      <select
+                        value={u.role}
+                        onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                        className="text-sm border border-gray-300 rounded px-2 py-1"
+                      >
+                        <option value="reader">Reader</option>
+                        <option value="journalist">Journalist</option>
+                        <option value="editor">Editor</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                      <button
+                        onClick={() => handleResetPassword(u._id)}
+                        className="text-orange-600 hover:text-orange-800 text-sm font-medium px-3 py-1 border border-orange-600 rounded hover:bg-orange-50"
+                        title="Reset Password"
+                      >
+                        Reset Password
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FaUsers className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No users found
+                </h3>
+                <p className="text-gray-600">
+                  Users will appear here once registered.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Footer - Journalists Category */}
+      <footer className="bg-white rounded-lg shadow-md p-6 mt-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Journalists Category</h2>
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={() => navigate('/add-journalist')}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+          >
+            <FaUsers className="mr-2" />
+            Add Journalist
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };

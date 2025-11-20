@@ -48,24 +48,31 @@ const Layout = ({ children }) => {
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className=" text-white">Welcome, {user.fullName}</span>
-                  {user.userType === 'editor' && (
-                    <>
-                      <Link to="/dashboard" className="btn btn-secondary">
-                        Dashboard
-                      </Link>
-                      <Link to="/pending-articles" className="btn btn-secondary">
-                        Approvals
-                      </Link>
-                    </>
-                  )}
-                  <Link to="/profile" className="btn btn-secondary">
-                    <FaUser className="h-4 w-4 mr-2" />
-                    Profile
-                  </Link>
-                  <button onClick={logout} className="btn btn-secondary">
-                    <FaSignOutAlt className="h-4 w-4 mr-2" />
-                    Logout
-                  </button>
+                  {(() => {
+                    const userRole = user.role || (user.userType === 'editor' ? 'editor' : 'reader');
+                    return (
+                      <>
+                        {['editor', 'admin'].includes(userRole) && (
+                          <>
+                            <Link to="/dashboard" className="btn btn-secondary">
+                              Dashboard
+                            </Link>
+                            <Link to="/pending-articles" className="btn btn-secondary">
+                              Approvals
+                            </Link>
+                          </>
+                        )}
+                        <Link to="/profile" className="btn btn-secondary">
+                          <FaUser className="h-4 w-4 mr-2" />
+                          Profile
+                        </Link>
+                        <button onClick={logout} className="btn btn-secondary">
+                          <FaSignOutAlt className="h-4 w-4 mr-2" />
+                          Logout
+                        </button>
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="flex items-center space-x-4">

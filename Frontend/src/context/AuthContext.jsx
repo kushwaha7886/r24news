@@ -19,13 +19,13 @@ export const AuthProvider = ({ children }) => {
   const getCurrentUser = async () => {
     try {
       const userType = localStorage.getItem('userType');
-      if (userType === 'editor') {
-        // For editors, we don't have a current-user endpoint, so we'll use the stored user data
+      if (userType === 'editor' || userType === 'admin') {
+        // For editors and admins, we don't have a current-user endpoint, so we'll use the stored user data
         const storedUser = JSON.parse(localStorage.getItem('userData'));
         if (storedUser) {
-          setUser({ ...storedUser, userType: 'editor' });
+          setUser({ ...storedUser, userType: userType });
         } else {
-          throw new Error('No stored editor data');
+          throw new Error('No stored editor/admin data');
         }
       } else {
         const response = await api.get('/users/current-user');
@@ -57,10 +57,11 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userType', user.role === 'editor' ? 'editor' : 'user');
+      localStorage.setItem('userType', user.role === 'admin' ? 'admin' : user.role === 'editor' ? 'editor' : 'user');
+      localStorage.setItem('userData', JSON.stringify(user));
       console.log('AuthContext: Tokens stored in localStorage');
 
-      setUser({ ...user, userType: user.role === 'editor' ? 'editor' : 'user' });
+      setUser({ ...user, userType: user.role === 'admin' ? 'admin' : user.role === 'editor' ? 'editor' : 'user' });
       console.log('AuthContext: User state updated:', user);
 
       return { success: true };
@@ -78,7 +79,8 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      setUser(user);
+      localStorage.setItem('userType', user.role === 'editor' ? 'editor' : 'user');
+      setUser({ ...user, userType: user.role === 'editor' ? 'editor' : 'user' });
 
       return { success: true };
     } catch (error) {

@@ -1,5 +1,14 @@
-# TODO for Fixing Header Overflow in Pending Articles
-
-## Tasks
-- [x] Modify Layout.jsx header to prevent overflow by adding flex-wrap and responsive adjustments
-- [x] Test the layout on different screen sizes to ensure no overflow
+- [ ] Update User.model.js: remove watchHistory, update role enum to ["reader", "journalist", "editor", "admin"], add bio, designation, isActive
+- [ ] Update Article.model.js: change journalist to author (ref User), editor to ref User, add featured
+- [ ] Update Category.model.js: add parent (ref Category), slug, image
+- [ ] Update News.model.js: change category to ref Category
+- [ ] Update Broadcast.model.js: add description, streamUrl
+- [ ] Update Weather.model.js: add forecast array
+- [ ] Remove Journalist.model.js
+- [ ] Update User.controller.js: remove watchHistory related code
+- [ ] Update Articles.controller.js: change journalist to author in queries
+- [ ] Move journalist creation to User.controller.js or update
+- [ ] Remove Journalist.controller.js and Journalist.route.js
+- [ ] Update app.js: remove journalistRouter
+- [ ] Update any other references
+- [ ] Test the changes

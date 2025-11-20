@@ -45,6 +45,18 @@ const Journalists = () => {
     }
   };
 
+  const handleRoleChange = async (journalistId, newRole) => {
+    try {
+      await api.patch(`/users/${journalistId}/role`, { role: newRole });
+      setJournalists(prev => prev.map(journalist =>
+        journalist._id === journalistId ? { ...journalist, role: newRole } : journalist
+      ));
+    } catch (error) {
+      console.error('Error updating role:', error);
+      alert('Failed to update role');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -67,7 +79,7 @@ const Journalists = () => {
                 Meet the talented writers and reporters behind our stories
               </p>
             </div>
-            {user && user.userType === 'editor' && (
+            {user && (user.userType === 'editor' || user.userType === 'admin') && (
               <button
                 onClick={() => navigate('/add-journalist')}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
@@ -108,6 +120,17 @@ const Journalists = () => {
                     </h3>
                     {user && user.userType === 'editor' && (
                       <div className="flex space-x-1">
+                        <select
+                          onChange={(e) => handleRoleChange(journalist._id, e.target.value)}
+                          value={journalist.role}
+                          className="text-xs border rounded px-1 py-0.5 mr-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <option value="reader">Reader</option>
+                          <option value="journalist">Journalist</option>
+                          <option value="editor">Editor</option>
+                          <option value="admin">Admin</option>
+                        </select>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

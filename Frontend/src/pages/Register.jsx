@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import { FaEye, FaEyeSlash, FaNewspaper, FaUpload } from 'react-icons/fa';
-import api from '../utils/api';
+import { FaEye, FaEyeSlash, FaUpload } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +11,7 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
-  const [role, setRole] = useState('user'); // 'user' or 'editor'
+  const role = 'user'; // Only 'user' allowed
   const [avatar, setAvatar] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -49,40 +48,26 @@ const Register = () => {
       return;
     }
 
-    if (role === 'editor') {
-      // Handle editor registration
-      try {
-        const response = await api.post('/editors/register', {
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (response.status === 201) {
-          navigate('/');
-        }
-      } catch (error) {
-        setError(error.response?.data?.message || 'Editor registration failed');
-      }
-    } else {
-      // Handle user registration
-      const submitData = new FormData();
+    // Handle registration for user
+    const submitData = new FormData();
+    if (role === 'user') {
       submitData.append('username', formData.username);
-      submitData.append('email', formData.email);
-      submitData.append('fullName', formData.fullName);
-      submitData.append('password', formData.password);
+    }
+    submitData.append('email', formData.email);
+    submitData.append('fullName', formData.fullName);
+    submitData.append('password', formData.password);
+    submitData.append('role', role);
 
-      if (avatar) {
-        submitData.append('avatar', avatar);
-      }
+    if (avatar) {
+      submitData.append('avatar', avatar);
+    }
 
-      const result = await register(submitData);
+    const result = await register(submitData);
 
-      if (result.success) {
-        navigate('/');
-      } else {
-        setError(result.error);
-      }
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.error);
     }
 
     setLoading(false);
@@ -115,38 +100,20 @@ const Register = () => {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-secondary-700">
-                Account Type
+              <label htmlFor="username" className="block text-sm font-medium text-secondary-700">
+                Username
               </label>
-              <select
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={formData.username}
+                onChange={handleChange}
                 className="input"
-              >
-                <option value="user">User</option>
-                <option value="editor">Editor</option>
-              </select>
+                placeholder="Choose a username"
+              />
             </div>
-
-            {role === 'user' && (
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-secondary-700">
-                  Username
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required={role === 'user'}
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="input"
-                  placeholder="Choose a username"
-                />
-              </div>
-            )}
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-secondary-700">
@@ -167,7 +134,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-secondary-700">
-                {role === 'editor' ? 'Name' : 'Full Name'}
+                Full Name
               </label>
               <input
                 id="fullName"
@@ -177,7 +144,7 @@ const Register = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 className="input"
-                placeholder={role === 'editor' ? 'Enter your name' : 'Enter your full name'}
+                placeholder="Enter your full name"
               />
             </div>
 
@@ -239,7 +206,30 @@ const Register = () => {
               </div>
             </div>
 
-            {role === 'user' && (
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-2">
+                Profile Picture (Optional)
+              </label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, 'avatar')}
+                  className="hidden"
+                  id="avatar"
+                />
+                <label
+                  htmlFor="avatar"
+                  className="flex items-center px-4 py-2 border border-secondary-300 rounded-md cursor-pointer hover:bg-secondary-50"
+                >
+                  <FaUpload className="h-4 w-4 mr-2" />
+                  Choose Avatar
+                </label>
+                {avatar && <span className="text-sm text-secondary-600">{avatar.name}</span>}
+              </div>
+            </div>
+
+            {role === 'editor' && (
               <div>
                 <label className="block text-sm font-medium text-secondary-700 mb-2">
                   Profile Picture (Optional)
