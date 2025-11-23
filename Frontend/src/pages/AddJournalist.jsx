@@ -45,7 +45,7 @@ const AddJournalist = () => {
         submitData.append('profileImage', formData.profileImage);
       }
 
-      const response = await api.post('/journalists', submitData, {
+      const response = await api.post('/users/journalists', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

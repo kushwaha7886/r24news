@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaSearch, FaFilter, FaVideo } from 'react-icons/fa';
-import News from '../components/News';
 
 const Articles = () => {
   const getYouTubeVideoId = (url) => {
@@ -139,11 +138,7 @@ const Articles = () => {
         </div>
       </div>
 
-      {/* Latest News from RSS Feeds */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-bold text-secondary-900 mb-4">Breaking News from Around the World</h2>
-        <News />
-      </section>
+
 
       {/* Articles Grid */}
       {articles.length === 0 ? (

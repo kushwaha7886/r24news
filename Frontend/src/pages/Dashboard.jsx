@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import AuthContext from '../context/AuthContext.jsx';
 import api from '../utils/api';
 import { FaNewspaper, FaUsers, FaImage, FaBroadcastTower, FaPlus, FaEdit, FaTrash, FaEye, FaTag } from 'react-icons/fa';
-import Weather from '../components/Weather';
-import News from '../components/News';
+
+
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -233,11 +233,6 @@ const Dashboard = () => {
 
 
 
-        {/* Weather and News */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Weather />
-          <News />
-        </div>
 
         {/* Recent Articles */}
         <div className="bg-white rounded-lg shadow-md p-6">

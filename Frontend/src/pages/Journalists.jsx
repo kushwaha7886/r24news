@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { AuthContext } from '../context/AuthContext';
+import AuthContext from '../context/AuthContext.jsx';
 import { FaUser, FaEnvelope, FaBriefcase, FaFileAlt, FaCalendar, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const Journalists = () => {
@@ -15,7 +15,7 @@ const Journalists = () => {
   useEffect(() => {
     const fetchJournalists = async () => {
       try {
-        const response = await api.get('/journalists');
+        const response = await api.get('/users/journalists');
         setJournalists(Array.isArray(response.data.data) ? response.data.data : []);
       } catch (error) {
         console.error('Error fetching journalists:', error);
@@ -37,7 +37,7 @@ const Journalists = () => {
 
   const handleDeleteJournalist = async (journalistId) => {
     try {
-      await api.delete(`/journalists/${journalistId}`);
+      await api.delete(`/users/journalists/${journalistId}`);
       setJournalists(prev => prev.filter(journalist => journalist._id !== journalistId));
     } catch (error) {
       console.error('Error deleting journalist:', error);
@@ -79,7 +79,7 @@ const Journalists = () => {
                 Meet the talented writers and reporters behind our stories
               </p>
             </div>
-            {user && (user.userType === 'editor' || user.userType === 'admin') && (
+            {user && (user.role === 'editor' || user.role === 'admin') && (
               <button
                 onClick={() => navigate('/add-journalist')}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"

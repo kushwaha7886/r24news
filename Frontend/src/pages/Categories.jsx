@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
-import { AuthContext } from '../context/AuthContext';
+import AuthContext from '../context/AuthContext.jsx';
 import { FaTag, FaNewspaper, FaEye, FaCalendar, FaTrash, FaEdit } from 'react-icons/fa';
 
 const Categories = () => {
@@ -132,7 +132,7 @@ const Categories = () => {
                           </div>
                         )}
                       </button>
-                      {user && (user.userType === 'editor' || user.role === 'admin') && (
+                      {user && (user.role === 'editor' || user.role === 'admin') && (
                         <div className="flex space-x-1 ml-2">
                           <button
                             onClick={(e) => {

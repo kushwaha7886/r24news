@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import api from '../utils/api';
-import { AuthContext } from '../context/AuthContext';
+import AuthContext from '../context/AuthContext.jsx';
 import { FaBroadcastTower, FaCalendar, FaClock, FaNewspaper, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const Broadcasts = () => {

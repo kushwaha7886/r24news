@@ -24,7 +24,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <AuthProvider>
-      <Router future={{ v7_startTransition: true }}>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Layout><Home /></Layout>} />
@@ -89,7 +89,7 @@ function App() {
 
           {/* Admin Routes */}
           <Route path="/add-journalist" element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['editor', 'admin']}>
               <Layout><AddJournalist /></Layout>
             </ProtectedRoute>
           } />

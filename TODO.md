@@ -1,14 +1,16 @@
-- [ ] Update User.model.js: remove watchHistory, update role enum to ["reader", "journalist", "editor", "admin"], add bio, designation, isActive
-- [ ] Update Article.model.js: change journalist to author (ref User), editor to ref User, add featured
-- [ ] Update Category.model.js: add parent (ref Category), slug, image
-- [ ] Update News.model.js: change category to ref Category
-- [ ] Update Broadcast.model.js: add description, streamUrl
-- [ ] Update Weather.model.js: add forecast array
-- [ ] Remove Journalist.model.js
-- [ ] Update User.controller.js: remove watchHistory related code
-- [ ] Update Articles.controller.js: change journalist to author in queries
-- [ ] Move journalist creation to User.controller.js or update
-- [ ] Remove Journalist.controller.js and Journalist.route.js
-- [ ] Update app.js: remove journalistRouter
-- [ ] Update any other references
-- [ ] Test the changes
+# TODO: Fix Add Journalist Issue for Admin and Editor
+
+## Issues Identified
+- ProtectedRoute.jsx incorrectly maps user.userType 'admin' to 'reader'
+- /add-journalist route in App.jsx allows only 'admin', but button shown to 'editor' and 'admin'
+- Missing backend POST /journalists route for creating journalists
+- Missing backend DELETE /journalists/:id route for deleting journalists
+- User.controller.js lacks createJournalist and deleteJournalist functions
+
+## Steps to Complete
+- [ ] Fix ProtectedRoute.jsx to correctly map user.userType to role
+- [ ] Update App.jsx /add-journalist route to allow ['editor', 'admin']
+- [ ] Add createJournalist function in User.controller.js
+- [ ] Add deleteJournalist function in User.controller.js
+- [ ] Update User.route.js to add POST /journalists and DELETE /journalists/:id routes
+- [ ] Test the functionality: login as editor/admin, add journalist, verify creation

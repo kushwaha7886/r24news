@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import AuthContext from '../context/AuthContext.jsx';
 import api from '../utils/api';
 import { FaEye, FaCheck, FaTimes, FaCalendarAlt, FaUser, FaVideo } from 'react-icons/fa';
 

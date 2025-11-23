@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { createContext } from 'react';
 import api from '../utils/api';
-import { AuthContext } from './AuthContext';
+import React, { useState, useEffect } from 'react';
+
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -16,21 +18,12 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+
+
   const getCurrentUser = async () => {
     try {
-      const userType = localStorage.getItem('userType');
-      if (userType === 'editor' || userType === 'admin') {
-        // For editors and admins, we don't have a current-user endpoint, so we'll use the stored user data
-        const storedUser = JSON.parse(localStorage.getItem('userData'));
-        if (storedUser) {
-          setUser({ ...storedUser, userType: userType });
-        } else {
-          throw new Error('No stored editor/admin data');
-        }
-      } else {
-        const response = await api.get('/users/current-user');
-        setUser({ ...response.data.data, userType: 'user' });
-      }
+      const response = await api.get('/users/current-user');
+      setUser(response.data.data);
     } catch (error) {
       console.error('Error fetching current user:', error);
       localStorage.removeItem('accessToken');
@@ -57,8 +50,7 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userType', user.role === 'admin' ? 'admin' : user.role === 'editor' ? 'editor' : 'user');
-      localStorage.setItem('userData', JSON.stringify(user));
+      // Store tokens only, user data will be fetched from /me endpoint
       console.log('AuthContext: Tokens stored in localStorage');
 
       setUser({ ...user, userType: user.role === 'admin' ? 'admin' : user.role === 'editor' ? 'editor' : 'user' });
@@ -79,8 +71,7 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userType', user.role === 'editor' ? 'editor' : 'user');
-      setUser({ ...user, userType: user.role === 'editor' ? 'editor' : 'user' });
+      setUser(user);
 
       return { success: true };
     } catch (error) {
@@ -115,7 +106,14 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
+    
   );
 };
+AuthProvider.displayName = 'AuthProvider';
+export default AuthContext;
+
+
+
+
 
 

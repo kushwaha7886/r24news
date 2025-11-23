@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { FaEye, FaHeart, FaCalendarAlt, FaUser, FaVideo } from 'react-icons/fa';
-import News from '../components/News';
-import Weather from '../components/Weather';
+
 
 const getYouTubeVideoId = (url) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -143,16 +142,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Weather and News Widgets */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <Weather />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-secondary-900 mb-4">Breaking News from Around the World</h2>
-          <News />
-        </div>
-      </section>
 
       {/* Stats Section */}
       <section className="bg-primary-600 text-white rounded-lg p-8">
