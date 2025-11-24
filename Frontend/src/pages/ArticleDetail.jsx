@@ -111,7 +111,7 @@ const ArticleDetail = () => {
       </Link>
 
       {/* Article Header */}
-      <article className="bg-white rounded-lg shadow-md overflow-hidden">
+      <article className="bg-amber-50 rounded-lg shadow-md overflow-hidden">
         {article.media && article.media.length > 0 && (
           <>
             {article.media[0].type === 'YouTube' ? (

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
 import { FaTag, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
 
+
+
 const AddCategory = () => {
   const navigate = useNavigate();
   const location = useLocation();

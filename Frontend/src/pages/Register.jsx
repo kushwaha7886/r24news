@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { FaEye, FaEyeSlash, FaUpload } from 'react-icons/fa';
 
+
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',

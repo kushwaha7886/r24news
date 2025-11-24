@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { FaEye, FaEyeSlash, FaNewspaper } from 'react-icons/fa';
 
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',

@@ -31,7 +31,7 @@ const PendingArticles = () => {
   }, [currentPage]);
 
   useEffect(() => {
-    if (user && (user.role === 'editor' || user.role === 'admin' || user.userType === 'editor' || user.userType === 'admin')) {
+    if (user && (user.role === 'editor' || user.role === 'admin')) {
       fetchPendingArticles();
     }
   }, [currentPage, user, fetchPendingArticles]);
@@ -62,7 +62,7 @@ const PendingArticles = () => {
     }
   };
 
-  if (!user || (user.userType !== 'editor' && user.userType !== 'admin')) {
+  if (!user || (user.role !== 'editor' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -201,7 +201,5 @@ const PendingArticles = () => {
     </div>
   );
 };
-
-
 
 export default PendingArticles;

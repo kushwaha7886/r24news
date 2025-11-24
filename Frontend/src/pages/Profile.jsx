@@ -3,6 +3,7 @@ import useAuth from '../hooks/useAuth';
 import api from '../utils/api';
 import { FaUser, FaEnvelope, FaCamera, FaSave, FaEdit } from 'react-icons/fa';
 
+
 const Profile = () => {
   const { user, login } = useAuth();
   const [loading, setLoading] = useState(false);

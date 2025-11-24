@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { FaUser, FaEnvelope, FaBriefcase, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
 
+
+
 const AddJournalist = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({

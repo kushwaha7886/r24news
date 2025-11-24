@@ -1,16 +1,26 @@
-# TODO: Fix Add Journalist Issue for Admin and Editor
+# TODO: Complete MediaAssets.jsx Page
 
-## Issues Identified
-- ProtectedRoute.jsx incorrectly maps user.userType 'admin' to 'reader'
-- /add-journalist route in App.jsx allows only 'admin', but button shown to 'editor' and 'admin'
-- Missing backend POST /journalists route for creating journalists
-- Missing backend DELETE /journalists/:id route for deleting journalists
-- User.controller.js lacks createJournalist and deleteJournalist functions
+## Overview
+Implement the MediaAssets.jsx page to list, view, edit, and delete media assets based on the MediaAsset model and controller. The page should display media assets in a grid with previews for images/videos, links for YouTube/documents, and include options for admins/editors to manage them. It will fetch data from the /media-assets API endpoint with pagination support.
 
-## Steps to Complete
-- [ ] Fix ProtectedRoute.jsx to correctly map user.userType to role
-- [ ] Update App.jsx /add-journalist route to allow ['editor', 'admin']
-- [ ] Add createJournalist function in User.controller.js
-- [ ] Add deleteJournalist function in User.controller.js
-- [ ] Update User.route.js to add POST /journalists and DELETE /journalists/:id routes
-- [ ] Test the functionality: login as editor/admin, add journalist, verify creation
+## Tasks
+- [ ] Create MediaAssets.jsx component structure
+- [ ] Implement state management for media assets, loading, pagination, and filters
+- [ ] Add API calls to fetch media assets with pagination and filters
+- [ ] Create grid layout to display media assets with appropriate previews
+- [ ] Add modal for viewing media asset details
+- [ ] Implement edit functionality for media assets
+- [ ] Implement delete functionality for media assets
+- [ ] Add role-based access control for admin/editor actions
+- [ ] Add pagination controls
+- [ ] Add filter options (by type, article)
+- [ ] Style the component with Tailwind CSS
+- [ ] Test the component functionality
+
+## Dependencies
+- MediaAsset model: type (Image/Video/Document/YouTube), url, caption, article reference
+- MediaAsset controller: getMediaAssets (with pagination), getMediaAssetById, updateMediaAsset, deleteMediaAsset
+- API endpoints: GET /media-assets, GET /media-assets/:id, PUT /media-assets/:id, DELETE /media-assets/:id
+- AuthContext for user role checking
+- React Router for navigation
+- React Icons for UI elements

@@ -23,7 +23,12 @@ export const AuthProvider = ({ children }) => {
   const getCurrentUser = async () => {
     try {
       const response = await api.get('/users/current-user');
-      setUser(response.data.data);
+      const userData = response.data.data;
+      // Ensure userType is set the same way as in login
+      setUser({
+        ...userData,
+        userType: userData.role === 'admin' ? 'admin' : userData.role === 'editor' ? 'editor' : 'user'
+      });
     } catch (error) {
       console.error('Error fetching current user:', error);
       localStorage.removeItem('accessToken');
@@ -111,9 +116,3 @@ export const AuthProvider = ({ children }) => {
 };
 AuthProvider.displayName = 'AuthProvider';
 export default AuthContext;
-
-
-
-
-
-

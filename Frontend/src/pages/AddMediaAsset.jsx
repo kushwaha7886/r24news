@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { FaImage, FaVideo, FaFile, FaLink, FaArrowLeft, FaFileAlt } from 'react-icons/fa';
+import { FaImage, FaVideo, FaFile, FaLink, FaArrowLeft, FaFileAlt, FaUpload } from 'react-icons/fa';
+
+
 
 const AddMediaAsset = () => {
   const navigate = useNavigate();

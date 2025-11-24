@@ -118,7 +118,7 @@ const Journalists = () => {
                     <h3 className="text-xl font-semibold text-gray-900">
                       {journalist.name}
                     </h3>
-                    {user && user.userType === 'editor' && (
+                    {user && (user.role === 'admin' || user.role === 'editor') && (
                       <div className="flex space-x-1">
                         <select
                           onChange={(e) => handleRoleChange(journalist._id, e.target.value)}
