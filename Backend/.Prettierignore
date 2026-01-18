@@ -1,0 +1,11 @@
+/.vscode
+/dist
+/build
+
+
+
+*.env
+.env
+node_modules
+.DS_Store
+.env.*
